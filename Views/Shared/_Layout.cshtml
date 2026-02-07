@@ -379,10 +379,18 @@
                     <p>مستخدم</p>
                 </div>
             </div>
-            <button class="btn btn-logout">
-                <i class="bi bi-box-arrow-left @(isRtl ? "ms-2" : "me-2")"></i>
-                تسجيل الخروج
-            </button>
+          <form asp-controller="Login"
+      asp-action="Logout"
+      method="post"
+      class="mt-3">
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-logout">
+        <i class="bi bi-box-arrow-left @(isRtl ? "ms-2" : "me-2")"></i>
+        تسجيل الخروج
+    </button>
+</form>
+
         </div>
     </div>
 
