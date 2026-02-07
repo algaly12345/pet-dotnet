@@ -1,21 +1,42 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-
-@{
-    ViewData["Title"] = "VetCare Clinic - Dashboard";
+﻿@{
+    ViewData["Title"] = "Dashboard";
 }
+<!-- Dashboard Content -->
+<div class="dashboard-content">
 
-<!-- هذا هو محتوى الصفحة الرئيسية -->
-<div class="container mt-4">
-    <h1 class="text-center">@Localizer["WelcomeToDashboard"]</h1>
-    <p class="text-center">@Localizer["DashboardDescription"]</p>
-    
-    <!-- يمكنك إضافة أي محتوى آخر هنا -->
-    <div class="row mt-5">
-        <div class="col-md-12 text-center">
-            <div class="alert alert-info">
-                <i class="bi bi-info-circle-fill"></i> @Localizer["WelcomeMessage"]
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div class="stat-icon blue"><i class="bi bi-calendar3"></i></div>
+                <div class="stat-info"><h6>مواعيد اليوم</h6></div>
             </div>
+            <div class="stat-value">12</div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-header">
+                <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
+                <div class="stat-info"><h6>إجمالي الإيرادات</h6></div>
+            </div>
+            <div class="stat-value">$2,530</div>
+        </div>
+
+        <div class="stat-card teal">
+            <div class="stat-header">
+                <div class="stat-icon teal"><i class="bi bi-heart-pulse"></i></div>
+                <div class="stat-info"><h6>المرضى النشطون</h6></div>
+            </div>
+            <div class="stat-value">45</div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="stat-header">
+                <div class="stat-icon red"><i class="bi bi-hospital"></i></div>
+                <div class="stat-info"><h6>حالات التنويم</h6></div>
+            </div>
+            <div class="stat-value">3</div>
         </div>
     </div>
+
 </div>

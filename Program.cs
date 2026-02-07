@@ -1,50 +1,40 @@
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews()
-    .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
-    .AddDataAnnotationsLocalization();
-
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddControllersWithViews();
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
-        new System.Globalization.CultureInfo("en"),
-        new System.Globalization.CultureInfo("ar")
+        new CultureInfo("ar"),
+        new CultureInfo("en")
     };
 
-    options.DefaultRequestCulture = new RequestCulture("en");
+    options.DefaultRequestCulture = new RequestCulture("ar");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
+
+    options.RequestCultureProviders = new IRequestCultureProvider[]
+    {
+        new CookieRequestCultureProvider()
+    };
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+app.UseRequestLocalization(
+    app.Services.GetRequiredService<
+        Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value
+);
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
-
-app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();
