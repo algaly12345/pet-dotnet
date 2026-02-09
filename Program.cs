@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using pets.Data;
 using pets.Models;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
+using pets.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseMySql(cs, ServerVersion.AutoDetect(cs))
 );
 
+
+builder.Services.AddControllersWithViews(opt =>
+{
+    var policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+    opt.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
+});
+
 // Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -42,6 +53,9 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
@@ -62,6 +76,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}"
 );
+await pets.Data.IdentitySeed.SeedAsync(app.Services);
 
 
 app.Run();

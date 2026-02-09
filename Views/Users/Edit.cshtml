@@ -1,0 +1,66 @@
+@model pets.ViewModels.UserEditVm
+@{
+    ViewData["Title"] = "Edit User";
+    var roles = (List<string>)(ViewBag.Roles ?? new List<string>());
+}
+
+<div class="dashboard-content p-4" style="max-width:750px;">
+    <h3 class="mb-3">تعديل مستخدم</h3>
+
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">FullName</label>
+            <input asp-for="FullName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select asp-for="RoleName" class="form-select">
+                <option value="">-- اختر الدور --</option>
+                @foreach (var r in roles)
+                {
+                    <option value="@r" selected="@(Model.RoleName == r)">@r</option>
+                }
+            </select>
+            <span asp-validation-for="RoleName" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label class="form-check-label">Active</label>
+        </div>
+
+        <hr />
+        <h5 class="mb-2">تغيير كلمة المرور (اختياري)</h5>
+
+        <div class="mb-3">
+            <label class="form-label">New Password</label>
+            <input asp-for="NewPassword" class="form-control" />
+            <span asp-validation-for="NewPassword" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Confirm New Password</label>
+            <input asp-for="ConfirmNewPassword" class="form-control" />
+            <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+        </div>
+
+        <button class="btn btn-primary">Save</button>
+        <a class="btn btn-secondary" asp-action="Index">Back</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

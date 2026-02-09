@@ -1,0 +1,19 @@
+@model pets.Models.ToolItem
+@{
+    ViewData["Title"] = "حذف أداة";
+}
+
+<div class="dashboard-content">
+    <h3 class="mb-3 text-danger">تأكيد الحذف</h3>
+
+    <div class="alert alert-warning">
+        هل أنت متأكد أنك تريد حذف: <b>@Model.Name</b> ؟
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn btn-danger">نعم، احذف</button>
+        <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>

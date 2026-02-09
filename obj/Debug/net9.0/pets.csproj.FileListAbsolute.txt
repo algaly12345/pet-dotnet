@@ -134,7 +134,6 @@
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/scopedcss/bundle/pets.styles.css
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/scopedcss/projectbundle/pets.bundle.scp.css
-/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/compressed/tbhiu6cl8r-{0}-k70ilrum45-k70ilrum45.gz
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/compressed/1cb77t6bkj-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/compressed/8dgos4v5w5-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/compressed/39l9kayns6-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -209,3 +208,4 @@
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/pets.pdb
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/pets.genruntimeconfig.cache
 /Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/ref/pets.dll
+/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/obj/Debug/net9.0/compressed/tbhiu6cl8r-{0}-jyqgbe0n14-jyqgbe0n14.gz

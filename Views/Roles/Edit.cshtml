@@ -1,0 +1,94 @@
+@model pets.ViewModels.RoleFormVm
+@{
+    ViewData["Title"] = "Edit Role";
+    var isRtl = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">@((isRtl) ? "تعديل الدور" : "Edit Role")</h3>
+        <a asp-controller="Roles" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> @((isRtl) ? "رجوع" : "Back")
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form asp-controller="Roles" asp-action="Edit" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">@((isRtl) ? "اسم الدور" : "Role Name")</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="m-0">@((isRtl) ? "الصلاحيات" : "Permissions")</h5>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllPerms(true)">
+                            @((isRtl) ? "تحديد الكل" : "Select all")
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllPerms(false)">
+                            @((isRtl) ? "إلغاء الكل" : "Unselect all")
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border rounded p-3" style="max-height: 340px; overflow:auto;">
+                    @if (Model.AllPermissions == null || Model.AllPermissions.Count == 0)
+                    {
+                        <div class="text-muted">@((isRtl) ? "لا توجد صلاحيات." : "No permissions.")</div>
+                    }
+                    else
+                    {
+                        @foreach (var p in Model.AllPermissions)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input perm-check"
+                                       type="checkbox"
+                                       name="SelectedPermissions"
+                                       value="@p.Value"
+                                       @(p.Selected ? "checked" : "") />
+
+                                <label class="form-check-label">
+                                    @p.Display
+                                    <small class="text-muted d-block">@p.Value</small>
+                                </label>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-controller="Roles" asp-action="Index" class="btn btn-light">
+                        @((isRtl) ? "إلغاء" : "Cancel")
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> @((isRtl) ? "حفظ" : "Save")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function selectAllPerms(check) {
+            document.querySelectorAll('.perm-check').forEach(cb => cb.checked = check);
+        }
+    </script>
+}

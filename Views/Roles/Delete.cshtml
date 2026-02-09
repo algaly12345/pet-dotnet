@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Identity
+@model IdentityRole
+
+@{
+    ViewData["Title"] = "Delete Role";
+}
+
+<div class="container mt-4">
+    <h3 class="mb-3 text-danger">حذف دور</h3>
+
+    <div class="alert alert-warning">
+        هل أنت متأكد أنك تريد حذف الدور: <b>@Model.Name</b> ؟
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <button class="btn btn-danger">نعم احذف</button>
+        <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>

@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using pets.Security
 @{
     var culture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName; // ar / en
     var isRtl = culture == "ar";
@@ -7,9 +8,11 @@
         ? "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css"
         : "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css";
 
-    // عشان نرجّع لنفس الصفحة بعد تغيير اللغة
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
+
+    bool can(string permission) => User?.Identity?.IsAuthenticated == true && User.HasPermission(permission);
 }
+
 
 <!DOCTYPE html>
 <html lang="@culture" dir="@dir">
@@ -328,69 +331,148 @@
         </div>
 
         <ul class="nav-menu">
-            <li class="nav-item">
-            
-            
-           <a asp-controller="Home" asp-action="Index" class="nav-link active">
-    <i class="bi bi-speedometer2"></i>
-    لوحة التحكم
-</a>
+           @if (can(Permissions.Dashboard_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Home" asp-action="Index" class="nav-link">
+                        <i class="bi bi-speedometer2"></i>
+                        @(isRtl ? "لوحة التحكم" : "Dashboard")
+                    </a>
+                </li>
+            }
 
-            
-            
-            
-            </li>
-            <li class="nav-item">
-            
-            <a asp-controller="Appointments" asp-action="Index" class="nav-link">
-  <i class="bi bi-calendar-check"></i> المواعيد
-</a>
-            </li>
-            <li class="nav-item">
-            
-            
-            <a asp-controller="Pets" asp-action="Index" class="nav-link">
-  <i class="bi bi-heart"></i> الحيوانات الأليفة
-</a>
-            
-            
-            </li>
-            <li class="nav-item">
-            
-           <a asp-controller="Owners" asp-action="Index" class="nav-link">
-  <i class="bi bi-people"></i> الملاك
-</a>
-            
-            </li>
+
+
+         @* Appointments *@
+            @if (can(Permissions.Appointments_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Appointments" asp-action="Index" class="nav-link">
+                        <i class="bi bi-calendar-check"></i>
+                        @(isRtl ? "المواعيد" : "Appointments")
+                    </a>
+                </li>
+            }
+
+
+
+
+       
+
+
+            @* Pets *@
+            @if (can(Permissions.Pets_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Pets" asp-action="Index" class="nav-link">
+                        <i class="bi bi-heart"></i>
+                        @(isRtl ? "الحيوانات الأليفة" : "Pets")
+                    </a>
+                </li>
+            }
+
+
+
+
+            @* Owners *@
+            @if (can(Permissions.Owners_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Owners" asp-action="Index" class="nav-link">
+                        <i class="bi bi-people"></i>
+                        @(isRtl ? "الملاك" : "Owners")
+                    </a>
+                </li>
+            }
+
+
+
             <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-clipboard2-pulse"></i> السجلات الطبية</a></li>
             <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-credit-card"></i> الفواتير</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-box-seam"></i> المخزون</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-graph-up"></i> التقارير</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-person-badge"></i> الموظفين</a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-gear"></i> الإعدادات</a></li>
+             @* Inventory *@
+            @if (can(Permissions.Inventory_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Inventory" asp-action="Index" class="nav-link">
+                        <i class="bi bi-box-seam"></i>
+                        @(isRtl ? "المخزون" : "Inventory")
+                    </a>
+                </li>
+            }
+            
+
+
+              @* Reports *@
+            @if (can(Permissions.Reports_View))
+            {
+                <li class="nav-item">
+                    <a asp-controller="Reports" asp-action="Index" class="nav-link">
+                        <i class="bi bi-graph-up"></i>
+                        @(isRtl ? "التقارير" : "Reports")
+                    </a>
+                </li>
+            }
+               @* ===== Admin Section ===== *@
+            @if (can(Permissions.Roles_View))
+            {
+          
+
+                @* لو عملت UsersController بعدين اربطه بصلاحية Roles_Edit أو صلاحية جديدة Users_View *@
+                <li class="nav-item">
+                    <a asp-controller="Users" asp-action="Index" class="nav-link">
+                        <i class="bi bi-people-fill"></i>
+                        @(isRtl ? "إدارة المستخدمين" : "Users")
+                    </a>
+                </li>
+            }
+
+                  <li class="nav-item">
+                    <a asp-controller="Roles" asp-action="Index" class="nav-link">
+                        <i class="bi bi-person-gear"></i>
+                        @(isRtl ? "إدارة الأدوار" : "Roles")
+                    </a>
+                </li>
         </ul>
 
-        <div class="user-profile-sidebar">
-            <div class="user-info">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=0a7ea4&color=fff&bold=true&size=128"
-                     alt="Admin" class="user-avatar">
-                <div class="user-details">
-                    <h6>المسؤول</h6>
-                    <p>مستخدم</p>
-                </div>
+    <div class="user-profile-sidebar">
+    <div class="user-info">
+        <div class="avatar-wrap">
+            <img src="https://ui-avatars.com/api/?name=@(User?.Identity?.Name ?? "User")&background=0a7ea4&color=fff&bold=true&size=128"
+                 alt="User" class="user-avatar">
+            <span class="status-dot" title="Online"></span>
+        </div>
+
+        <div class="user-details flex-grow-1">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="m-0">
+                    @(User?.Identity?.Name ?? (isRtl ? "مستخدم" : "User"))
+                </h6>
+
+                @* Role badge (optional) *@
+                <span class="role-badge">
+                    @(User.IsInRole("Admin") ? (isRtl ? "مدير" : "Admin") : (isRtl ? "مستخدم" : "User"))
+                </span>
             </div>
-          <form asp-controller="Login"
-      asp-action="Logout"
-      method="post"
-      class="mt-3">
-    @Html.AntiForgeryToken()
 
-    <button type="submit" class="btn btn-logout">
-        <i class="bi bi-box-arrow-left @(isRtl ? "ms-2" : "me-2")"></i>
-        تسجيل الخروج
-    </button>
-</form>
+            <p class="m-0 user-sub">
+                <i class="bi bi-shield-lock-fill"></i>
+                @(isRtl ? "حساب النظام" : "System account")
+            </p>
+        </div>
+    </div>
 
+    <div class="user-actions mt-3">
+        <form asp-controller="Login" asp-action="Logout" method="post" class="w-100">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-logout w-100">
+                <i class="bi bi-box-arrow-left @(isRtl ? "ms-2" : "me-2")"></i>
+                @(isRtl ? "تسجيل الخروج" : "Logout")
+            </button>
+        </form>
+    </div>
+</div>
+
+         
         </div>
     </div>
 

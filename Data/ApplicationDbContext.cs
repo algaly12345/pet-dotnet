@@ -7,18 +7,16 @@ namespace pets.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+
+        public DbSet<Tool> Tools => Set<Tool>();           // ✅ واحدة فقط
+        public DbSet<ToolItem> ToolItems => Set<ToolItem>(); // ✅ لو عندك ToolItem فعلاً
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // ============================
-            // Identity tables (lowercase)
-            // ============================
+            // Identity tables
             builder.Entity<User>().ToTable("users");
             builder.Entity<IdentityRole>().ToTable("roles");
             builder.Entity<IdentityUserRole<string>>().ToTable("user_roles");
@@ -27,9 +25,7 @@ namespace pets.Data
             builder.Entity<IdentityRoleClaim<string>>().ToTable("role_claims");
             builder.Entity<IdentityUserToken<string>>().ToTable("user_tokens");
 
-            // ============================
-            // User columns (snake_case)
-            // ============================
+            // User columns
             builder.Entity<User>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -48,11 +44,20 @@ namespace pets.Data
                 entity.Property(e => e.LockoutEnabled).HasColumnName("lockout_enabled");
                 entity.Property(e => e.AccessFailedCount).HasColumnName("access_failed_count");
 
-                // خصائصك الإضافية
                 entity.Property(e => e.FullName).HasColumnName("full_name");
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.LastLoginAt).HasColumnName("last_login_at");
+            });
+
+            // ✅ Tool table + columns (snake_case)
+            builder.Entity<Tool>(entity =>
+            {
+                entity.ToTable("tools");
+                entity.Property(x => x.Id).HasColumnName("id");
+                entity.Property(x => x.Name).HasColumnName("name");
+                entity.Property(x => x.Description).HasColumnName("description");
+                entity.Property(x => x.IsActive).HasColumnName("is_active");
             });
         }
     }
