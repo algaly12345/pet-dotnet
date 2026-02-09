@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace pets.Controllers
 {
-    [Authorize]
+    [Authorize] // لازم يكون مسجل دخول
     public class RolesController : Controller
     {
         private const string PermissionClaimType = "permission";
@@ -19,6 +19,7 @@ namespace pets.Controllers
         }
 
         // GET: /Roles
+        [Authorize(Policy = Permissions.Roles_View)]
         public IActionResult Index()
         {
             var roles = _roleManager.Roles.OrderBy(r => r.Name).ToList();
@@ -26,6 +27,7 @@ namespace pets.Controllers
         }
 
         // GET: /Roles/Create
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpGet]
         public IActionResult Create()
         {
@@ -37,6 +39,7 @@ namespace pets.Controllers
         }
 
         // POST: /Roles/Create
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(RoleFormVm vm)
@@ -47,14 +50,16 @@ namespace pets.Controllers
                 return View(vm);
             }
 
-            if (await _roleManager.RoleExistsAsync(vm.Name))
+            var roleName = vm.Name.Trim();
+
+            if (await _roleManager.RoleExistsAsync(roleName))
             {
                 ModelState.AddModelError("", "الدور موجود مسبقاً.");
                 vm.AllPermissions = BuildPermissionsVm(vm.SelectedPermissions.ToHashSet());
                 return View(vm);
             }
 
-            var role = new IdentityRole(vm.Name.Trim());
+            var role = new IdentityRole(roleName);
             var createResult = await _roleManager.CreateAsync(role);
 
             if (!createResult.Succeeded)
@@ -71,15 +76,14 @@ namespace pets.Controllers
                 .ToList();
 
             foreach (var perm in selectedPerms)
-            {
                 await _roleManager.AddClaimAsync(role, new Claim(PermissionClaimType, perm));
-            }
 
             TempData["Success"] = "تم إنشاء الدور بنجاح ✅";
             return RedirectToAction(nameof(Index));
         }
 
         // GET: /Roles/Edit/{id}
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -104,6 +108,7 @@ namespace pets.Controllers
         }
 
         // POST: /Roles/Edit
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(RoleFormVm vm)
@@ -154,6 +159,7 @@ namespace pets.Controllers
         }
 
         // GET: /Roles/Delete/{id}
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
@@ -163,6 +169,7 @@ namespace pets.Controllers
         }
 
         // POST: /Roles/DeleteConfirmed
+        [Authorize(Policy = Permissions.Roles_Edit)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -186,19 +193,13 @@ namespace pets.Controllers
         // -----------------------------
         private List<RolePermissionVm> BuildPermissionsVm(HashSet<string> selected)
         {
-            static string DisplayName(string p)
-            {
-                // Permissions.Tools_Create => Tools / Create
-                return p.Replace("Permissions.", "").Replace(".", " / ");
-            }
-
             return Permissions.All
                 .Distinct()
                 .OrderBy(p => p)
                 .Select(p => new RolePermissionVm
                 {
                     Value = p,
-                    Display = DisplayName(p),
+                    Display = PermissionTranslator.ToDisplay(p), // ✅ ترجمة حسب اللغة
                     Selected = selected.Contains(p)
                 })
                 .ToList();

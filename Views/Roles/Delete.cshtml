@@ -1,22 +1,35 @@
-@using Microsoft.AspNetCore.Identity
-@model IdentityRole
+@model Microsoft.AspNetCore.Identity.IdentityRole
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Delete Role";
+    var isRtl = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 }
 
-<div class="container mt-4">
-    <h3 class="mb-3 text-danger">حذف دور</h3>
+<div class="dashboard-content">
+    <h3 class="mb-3 text-danger">@((isRtl) ? "حذف دور" : "Delete Role")</h3>
 
-    <div class="alert alert-warning">
-        هل أنت متأكد أنك تريد حذف الدور: <b>@Model.Name</b> ؟
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="mb-3">
+                @((isRtl) ? "هل أنت متأكد من حذف الدور التالي؟" : "Are you sure you want to delete this role?")
+            </p>
+
+            <div class="alert alert-warning">
+                <strong>@Model.Name</strong>
+            </div>
+
+            <form asp-action="DeleteConfirmed" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <button class="btn btn-danger" type="submit">
+                    <i class="bi bi-trash"></i> @((isRtl) ? "حذف" : "Delete")
+                </button>
+                <a class="btn btn-secondary" asp-action="Index">
+                    @((isRtl) ? "إلغاء" : "Cancel")
+                </a>
+            </form>
+        </div>
     </div>
-
-    <form asp-action="DeleteConfirmed" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="id" value="@Model.Id" />
-
-        <button class="btn btn-danger">نعم احذف</button>
-        <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
-    </form>
 </div>

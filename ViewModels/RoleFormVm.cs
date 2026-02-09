@@ -6,13 +6,13 @@ namespace pets.ViewModels
     {
         public string? Id { get; set; }
 
-        [Required, MaxLength(200)]
+        [Required, MaxLength(100)]
         public string Name { get; set; } = "";
 
-        // القيم المختارة فقط
+        // checkbox values from form
         public List<string> SelectedPermissions { get; set; } = new();
 
-        // كل الصلاحيات للعرض في الفورم
+        // for displaying all permissions
         public List<RolePermissionVm> AllPermissions { get; set; } = new();
     }
 }
