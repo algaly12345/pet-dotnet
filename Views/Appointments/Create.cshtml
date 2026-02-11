@@ -1,0 +1,117 @@
+cat > Views/Appointments/Create.cshtml <<'EOF'
+@model pets.ViewModels.AppointmentFormVm
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Create Appointment";
+    var isRtl = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+    Layout = "_Layout";
+}
+
+<div class="dashboard-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1 fw-bold">@(isRtl ? "إضافة موعد جديد" : "Add New Appointment")</h4>
+            <div class="text-muted">@(isRtl ? "أدخل بيانات الموعد" : "Fill appointment details")</div>
+        </div>
+        <a class="btn btn-light" asp-action="Index">@(isRtl ? "رجوع" : "Back")</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "المالك" : "Owner")</label>
+                        <select class="form-select" asp-for="OwnerId">
+                            <option value="">-- @(isRtl ? "اختر المالك" : "Select owner") --</option>
+                            @foreach (var o in Model.Owners)
+                            {
+                                <option value="@o.Value">@o.Text</option>
+                            }
+                        </select>
+                        <span class="text-danger" asp-validation-for="OwnerId"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "الحيوان" : "Pet")</label>
+                        <select class="form-select" asp-for="PetId">
+                            <option value="">-- @(isRtl ? "اختر الحيوان" : "Select pet") --</option>
+                            @foreach (var p in Model.Pets)
+                            {
+                                <option value="@p.Value">@p.Text</option>
+                            }
+                        </select>
+                        <span class="text-danger" asp-validation-for="PetId"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "الطبيب" : "Doctor")</label>
+                        <select class="form-select" asp-for="DoctorUserId">
+                            <option value="">-- @(isRtl ? "اختر الطبيب" : "Select doctor") --</option>
+                            @foreach (var d in Model.Doctors)
+                            {
+                                <option value="@d.Value">@d.Text</option>
+                            }
+                        </select>
+                        <span class="text-danger" asp-validation-for="DoctorUserId"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "الحالة" : "Status")</label>
+                        <select class="form-select" asp-for="Status">
+                            <option value="0">@(isRtl ? "قيد الانتظار" : "Pending")</option>
+                            <option value="1">@(isRtl ? "مؤكد" : "Confirmed")</option>
+                            <option value="2">@(isRtl ? "مكتمل" : "Completed")</option>
+                            <option value="3">@(isRtl ? "ملغي" : "Cancelled")</option>
+                        </select>
+                        <span class="text-danger" asp-validation-for="Status"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "وقت البداية" : "Start")</label>
+                        <input class="form-control" asp-for="StartAt" type="datetime-local" />
+                        <span class="text-danger" asp-validation-for="StartAt"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">@(isRtl ? "وقت النهاية" : "End")</label>
+                        <input class="form-control" asp-for="EndAt" type="datetime-local" />
+                        <span class="text-danger" asp-validation-for="EndAt"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">@(isRtl ? "السبب" : "Reason")</label>
+                        <input class="form-control" asp-for="Reason" />
+                        <span class="text-danger" asp-validation-for="Reason"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">@(isRtl ? "ملاحظات" : "Notes")</label>
+                        <textarea class="form-control" asp-for="Notes" rows="4"></textarea>
+                        <span class="text-danger" asp-validation-for="Notes"></span>
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a class="btn btn-outline-secondary" asp-action="Index">@(isRtl ? "إلغاء" : "Cancel")</a>
+                    <button type="submit" class="btn btn-primary">@(isRtl ? "حفظ" : "Save")</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+EOF

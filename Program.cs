@@ -19,7 +19,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.DefaultRequestCulture = new RequestCulture("ar");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-    options.RequestCultureProviders = new IRequestCultureProvider[] { new CookieRequestCultureProvider() };
+    options.RequestCultureProviders = new IRequestCultureProvider[]
+    {
+        new CookieRequestCultureProvider()
+    };
 });
 
 // MySQL
@@ -28,10 +31,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseMySql(cs, ServerVersion.AutoDetect(cs))
 );
 
-
 builder.Services.AddControllersWithViews(opt =>
 {
-    var policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+    var policy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
     opt.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
@@ -40,16 +42,12 @@ builder.Services.AddControllersWithViews(opt =>
 // Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
-   
-    // 🔓 Password policy (very relaxed)
-    options.Password.RequiredLength = 1;          // أقل طول ممكن
+    options.Password.RequiredLength = 1;
     options.Password.RequireDigit = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
-
-    // اختياري
-    options.Password.RequiredUniqueChars = 0;     // لا يشترط أحرف مختلفة
+    options.Password.RequiredUniqueChars = 0;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -76,7 +74,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Login}/{action=Index}/{id?}"
 );
-await pets.Data.IdentitySeed.SeedAsync(app.Services);
 
+// Seed (اختياري)
+await IdentitySeed.SeedAsync(app.Services);
 
 app.Run();

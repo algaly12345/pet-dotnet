@@ -30,24 +30,16 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
+[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL0luZGV4LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Tools/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL1Rvb2xzL0NyZWF0ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Tools/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL1Rvb2xzL0RlbGV0ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Tools/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL1Rvb2xzL0VkaXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Appointments/Tools/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXBwb2ludG1lbnRzL1Rvb2xzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/awadabayzeed/Desktop/project-dotent/pet-dotnet/Views/Dashboard/Index.cshtml]

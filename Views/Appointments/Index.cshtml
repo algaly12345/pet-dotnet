@@ -1,8 +1,45 @@
+@model List<pets.Models.Appointment>
+
 @{
     ViewData["Title"] = "Appointments";
+    Layout = "_Layout";
 }
 
-<div class="dashboard-content">
-    <h4>المواعيد</h4>
-    <p>هذه شاشة المواعيد.</p>
-</div>
+<h3>Appointments</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Start</th>
+            <th>Owner</th>
+            <th>Pet</th>
+            <th>Doctor</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var a in Model)
+    {
+        <tr>
+            <td>@a.Id</td>
+            <td>@a.StartAt</td>
+            <td>@a.OwnerName</td>
+            <td>@a.PetName</td>
+            <td>@a.DoctorName</td>
+            <td>@a.Status</td>
+            <td class="text-end">
+                <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@a.Id">Edit</a>
+
+                <form asp-action="Delete" asp-route-id="@a.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a class="btn btn-success" asp-action="Create">Create</a>
