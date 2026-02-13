@@ -1,45 +1,318 @@
 @model List<pets.Models.Appointment>
+@using System.Globalization
+@using pets.Models
 
 @{
-    ViewData["Title"] = "Appointments";
+    ViewData["Title"] = "إدارة المواعيد";
     Layout = "_Layout";
+
+    var todayCount = (int)(ViewBag.TodayCount ?? 0);
+    var confirmedCount = (int)(ViewBag.ConfirmedCount ?? 0);
+    var pendingCount = (int)(ViewBag.PendingCount ?? 0);
+    var cancelledCount = (int)(ViewBag.CancelledCount ?? 0);
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+
+    var eventsJson = (string)(ViewBag.CalendarEventsJson ?? "[]");
 }
 
-<h3>Appointments</h3>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Start</th>
-            <th>Owner</th>
-            <th>Pet</th>
-            <th>Doctor</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var a in Model)
-    {
-        <tr>
-            <td>@a.Id</td>
-            <td>@a.StartAt</td>
-            <td>@a.OwnerName</td>
-            <td>@a.PetName</td>
-            <td>@a.DoctorName</td>
-            <td>@a.Status</td>
-            <td class="text-end">
-                <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@a.Id">Edit</a>
+<style>
+    body { font-family: 'Cairo', sans-serif; background:#f8fafc; direction:rtl; }
+    .dashboard-content{ padding: 28px 10px; }
+    .stats-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:18px;}
+    .stat-card{ background:#fff; border-radius:16px; padding:20px; border:1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,.06); transition:.2s;}
+    .stat-card:hover{ transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,.08);}
+    .stat-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+    .stat-icon{width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px;}
+    .icon-blue{ background:#dbeafe; color:#2563eb;}
+    .icon-green{ background:#d1fae5; color:#10b981;}
+    .icon-orange{ background:#fef3c7; color:#f59e0b;}
+    .icon-red{ background:#fee2e2; color:#ef4444;}
+    .stat-info h6{ margin:0; color:#64748b; font-weight:800; font-size:13px;}
+    .stat-value{ font-size:30px; font-weight:900; color:#0f172a;}
+    .filters-section{ background:#fff; border-radius:18px; padding:20px; border:1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom:18px;}
+    .filters-header{display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+    .filters-header h5{ margin:0; font-weight:900; color:#0f172a; display:flex; align-items:center; gap:8px;}
+    .view-toggle{ display:flex; gap:8px; background:#f8fafc; padding:6px; border-radius:12px;}
+    .view-btn{ border:0; background:transparent; padding:10px 16px; border-radius:10px; font-weight:800; color:#64748b; cursor:pointer; display:flex; align-items:center; gap:8px;}
+    .view-btn.active{ background:#fff; color:#0891b2; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .filter-tabs{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+    .filter-tab{ padding:10px 16px; border-radius:10px; border:2px solid #e2e8f0; background:#fff; color:#64748b; font-weight:800; cursor:pointer; display:flex; gap:8px; align-items:center;}
+    .filter-tab.active{ background: linear-gradient(135deg,#0891b2,#0e7490); border-color:#0891b2; color:#fff;}
+    .filter-badge{ background:rgba(255,255,255,.25); padding:2px 8px; border-radius:999px; font-size:12px;}
+    .calendar-section, .table-section{ background:#fff; border-radius:18px; padding:20px; border:1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom:18px;}
+    #calendar{ direction:ltr; }
+    .table-section{ display:none; }
+    .search-box{ position:relative; max-width:380px; width:100%;}
+    .search-box input{ width:100%; padding:12px 44px 12px 14px; border-radius:12px; border:2px solid #e2e8f0;}
+    .search-box i{ position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#94a3b8; }
+    .appointments-table{ width:100%; border-collapse:separate; border-spacing:0 10px; }
+    .appointments-table thead th{ background:#f1f5f9; padding:14px 16px; font-size:13px; font-weight:900; color:#475569; }
+    .appointments-table tbody tr{ background:#fff; transition:.2s; }
+    .appointments-table tbody tr:hover{ background:#f8fafc; transform:scale(1.005); box-shadow:0 10px 20px rgba(0,0,0,.06); }
+    .appointments-table td{ padding:14px 16px; border-top:1px solid #f1f5f9; border-bottom:1px solid #f1f5f9; color:#334155; font-weight:700; }
+    .pet-owner-info{ display:flex; align-items:center; gap:12px;}
+    .pet-avatar{ width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#f8fafc; font-size:22px;}
+    .pet-details h6{ margin:0; font-weight:900; font-size:14px; color:#0f172a;}
+    .pet-details p{ margin:0; color:#64748b; font-size:12px; font-weight:800;}
+    .status-badge{ padding:7px 14px; border-radius:999px; font-size:12px; font-weight:900; display:inline-block;}
+    .status-confirmed{ background:#d1fae5; color:#047857;}
+    .status-pending{ background:#fef3c7; color:#b45309;}
+    .status-cancelled{ background:#fee2e2; color:#b91c1c;}
+    .status-completed{ background:#dbeafe; color:#1e40af;}
+    .action-buttons{ display:flex; gap:8px; justify-content:flex-end;}
+    .action-btn{ width:36px; height:36px; border-radius:10px; border:0; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .btn-edit{ background:#dbeafe; color:#2563eb;}
+    .btn-edit:hover{ background:#2563eb; color:#fff;}
+    .btn-del{ background:#fee2e2; color:#ef4444;}
+    .btn-del:hover{ background:#ef4444; color:#fff;}
+</style>
 
-                <form asp-action="Delete" asp-route-id="@a.Id" method="post" style="display:inline">
-                    @Html.AntiForgeryToken()
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
+<div class="dashboard-content">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-3 p-2" style="background:#dbeafe;color:#2563eb;">
+                <i class="bi bi-calendar2-week fs-4"></i>
+            </div>
+            <div>
+                <div class="fw-black fs-4">إدارة المواعيد</div>
+                <div class="text-muted fw-bold">عرض المواعيد والتقويم</div>
+            </div>
+        </div>
+
+        <a class="btn btn-success fw-bold" asp-action="Create">
+            <i class="bi bi-calendar-plus"></i>
+            إضافة موعد
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-blue"><i class="bi bi-calendar-day"></i></div>
+                <div class="stat-info"><h6>مواعيد اليوم</h6></div>
+            </div>
+            <div class="stat-value">@todayCount</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-green"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="stat-info"><h6>مؤكدة</h6></div>
+            </div>
+            <div class="stat-value">@confirmedCount</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-orange"><i class="bi bi-clock-fill"></i></div>
+                <div class="stat-info"><h6>قيد الانتظار</h6></div>
+            </div>
+            <div class="stat-value">@pendingCount</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon icon-red"><i class="bi bi-x-circle-fill"></i></div>
+                <div class="stat-info"><h6>ملغاة</h6></div>
+            </div>
+            <div class="stat-value">@cancelledCount</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <div class="filters-header">
+            <h5><i class="bi bi-funnel-fill"></i> فلترة المواعيد</h5>
+
+            <div class="view-toggle">
+                <button type="button" class="view-btn active" id="btnCalendar" onclick="showCalendar()">
+                    <i class="bi bi-calendar3"></i> التقويم
+                </button>
+                <button type="button" class="view-btn" id="btnTable" onclick="showTable()">
+                    <i class="bi bi-table"></i> الجدول
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button type="button" class="filter-tab active" onclick="filterAppointments('all', this)">
+                <i class="bi bi-grid-fill"></i> الكل <span class="filter-badge">@totalCount</span>
+            </button>
+
+            <button type="button" class="filter-tab" onclick="filterAppointments('today', this)">
+                <i class="bi bi-calendar-day"></i> اليوم <span class="filter-badge">@todayCount</span>
+            </button>
+
+            <button type="button" class="filter-tab" onclick="filterAppointments('confirmed', this)">
+                <i class="bi bi-check-circle"></i> مؤكدة <span class="filter-badge">@confirmedCount</span>
+            </button>
+
+            <button type="button" class="filter-tab" onclick="filterAppointments('pending', this)">
+                <i class="bi bi-clock"></i> انتظار <span class="filter-badge">@pendingCount</span>
+            </button>
+
+            <button type="button" class="filter-tab" onclick="filterAppointments('completed', this)">
+                <i class="bi bi-clipboard-check"></i> مكتملة
+                <span class="filter-badge">@Model.Count(x => x.Status == AppointmentStatus.Completed)</span>
+            </button>
+
+            <button type="button" class="filter-tab" onclick="filterAppointments('cancelled', this)">
+                <i class="bi bi-x-octagon"></i> ملغاة <span class="filter-badge">@cancelledCount</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="calendar-section" id="calendarView">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-section" id="tableView">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input id="searchInput" type="text" placeholder="ابحث عن موعد أو مالك أو حيوان..." oninput="searchTable()">
+            </div>
+        </div>
+
+        <table class="appointments-table">
+            <thead>
+            <tr>
+                <th>الحيوان / المالك</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>الطبيب</th>
+                <th>السبب</th>
+                <th>الحالة</th>
+                <th class="text-end">إجراءات</th>
+            </tr>
+            </thead>
+            <tbody id="tbodyRows">
+            @foreach (var a in Model)
+            {
+                var badgeClass = a.Status switch
+                {
+                    AppointmentStatus.Confirmed => "status-badge status-confirmed",
+                    AppointmentStatus.Pending => "status-badge status-pending",
+                    AppointmentStatus.Completed => "status-badge status-completed",
+                    AppointmentStatus.Cancelled => "status-badge status-cancelled",
+                    _ => "status-badge status-pending"
+                };
+
+                var petEmoji = "🐾";
+                if (!string.IsNullOrWhiteSpace(a.PetName))
+                {
+                    // اختياري: Emoji بسيط حسب الاسم/النوع لو عندك
+                    petEmoji = "🐶";
+                }
+
+                <tr data-status="@a.Status.ToString().ToLower()"
+                    data-search="@($"{a.PetName} {a.OwnerName} {a.DoctorName} {a.Reason}").ToLower()"
+                    data-start="@a.StartAt.ToString("yyyy-MM-dd")">
+                    <td>
+                        <div class="pet-owner-info">
+                            <div class="pet-avatar">@petEmoji</div>
+                            <div class="pet-details">
+                                <h6>@a.PetName</h6>
+                                <p>@a.OwnerName</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@a.StartAt.ToString("dd MMM yyyy", new CultureInfo("ar-SA"))</td>
+                    <td>@a.StartAt.ToString("hh:mm tt", CultureInfo.InvariantCulture)</td>
+                    <td>@a.DoctorName</td>
+                    <td>@a.Reason</td>
+                    <td><span class="@badgeClass">@a.Status</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a class="action-btn btn-edit" asp-action="Edit" asp-route-id="@a.Id" title="تعديل">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+
+                            <form asp-action="Delete" asp-route-id="@a.Id" method="post" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <button class="action-btn btn-del" type="submit" title="حذف"
+                                        onclick="return confirm('هل أنت متأكد من الحذف؟');">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+
+<script>
+    const calendarEvents = @Html.Raw(eventsJson);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ar',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+            events: calendarEvents,
+            eventClick: function(info) {
+                // يفتح صفحة Edit عند الضغط على الحدث
+                window.location.href = '/Appointments/Edit/' + info.event.id;
+            }
+        });
+        calendar.render();
+    });
+
+    function showCalendar() {
+        document.getElementById('calendarView').style.display = 'block';
+        document.getElementById('tableView').style.display = 'none';
+        document.getElementById('btnCalendar').classList.add('active');
+        document.getElementById('btnTable').classList.remove('active');
     }
-    </tbody>
-</table>
 
-<a class="btn btn-success" asp-action="Create">Create</a>
+    function showTable() {
+        document.getElementById('calendarView').style.display = 'none';
+        document.getElementById('tableView').style.display = 'block';
+        document.getElementById('btnCalendar').classList.remove('active');
+        document.getElementById('btnTable').classList.add('active');
+    }
+
+    function filterAppointments(filter, el) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+
+        const rows = document.querySelectorAll('#tbodyRows tr');
+        const todayStr = new Date().toISOString().slice(0,10);
+
+        rows.forEach(r => {
+            const status = r.getAttribute('data-status');
+            const start = r.getAttribute('data-start');
+
+            let ok = true;
+            if (filter === 'today') ok = (start === todayStr);
+            else if (filter !== 'all') ok = (status === filter);
+
+            r.style.display = ok ? '' : 'none';
+        });
+    }
+
+    function searchTable() {
+        const q = (document.getElementById('searchInput').value || '').toLowerCase();
+        const rows = document.querySelectorAll('#tbodyRows tr');
+        rows.forEach(r => {
+            const s = r.getAttribute('data-search') || '';
+            r.style.display = s.includes(q) ? '' : 'none';
+        });
+    }
+</script>
